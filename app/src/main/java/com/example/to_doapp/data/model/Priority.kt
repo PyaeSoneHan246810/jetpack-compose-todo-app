@@ -1,4 +1,4 @@
-package com.example.to_doapp.data.models
+package com.example.to_doapp.data.model
 
 import androidx.compose.ui.graphics.Color
 import com.example.to_doapp.ui.theme.HighPriorityColor

@@ -2,8 +2,7 @@ package com.example.to_doapp.di
 
 import android.content.Context
 import androidx.room.Room
-import androidx.room.RoomDatabase
-import com.example.to_doapp.data.ToDoDatabase
+import com.example.to_doapp.data.database.ToDoDatabase
 import com.example.to_doapp.util.Constants
 import dagger.Module
 import dagger.Provides
