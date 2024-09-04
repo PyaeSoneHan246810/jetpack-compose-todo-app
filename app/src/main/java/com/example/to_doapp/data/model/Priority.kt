@@ -6,9 +6,9 @@ import com.example.to_doapp.ui.theme.LowPriorityColor
 import com.example.to_doapp.ui.theme.MediumPriorityColor
 import com.example.to_doapp.ui.theme.NonePriorityColor
 
-enum class Priority(val color: Color) {
-    NONE(color = NonePriorityColor),
-    LOW(color = LowPriorityColor),
-    MEDIUM(color = MediumPriorityColor),
-    HIGH(color = HighPriorityColor)
+enum class Priority(val color: Color, val title: String) {
+    NONE(color = NonePriorityColor, title = "None"),
+    LOW(color = LowPriorityColor, title = "Low"),
+    MEDIUM(color = MediumPriorityColor, title = "Medium"),
+    HIGH(color = HighPriorityColor, title = "High")
 }

@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">To-Do App</string>
+    <string name="default_app_bar_title">Tasks</string>
+    <string name="add_task_button">Add Task Button</string>
+    <string name="search_tasks">Search Tasks</string>
+    <string name="sort_tasks">Sort Tasks</string>
+    <string name="more_options">More Options</string>
+    <string name="delete_all">Delete All</string>
+    <string name="search_query_placeholder">Search</string>
+    <string name="cancel">Cancel</string>
 </resources>

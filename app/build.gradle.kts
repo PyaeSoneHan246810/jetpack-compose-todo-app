@@ -84,6 +84,9 @@ dependencies {
 
     //Navigation Compose
     implementation(libs.navigation.compose)
+
+    //Material Icons Extended
+    implementation(libs.material.icons.extended)
 }
 
 kapt {
