@@ -1,5 +1,8 @@
 package com.example.to_doapp.navigation.destinations
 
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
@@ -23,7 +26,15 @@ fun NavGraphBuilder.tasksListComposable(
             },
         )
     ) {
+        LaunchedEffect(key1 = true) {
+            sharedViewModel.getAllTasks()
+        }
+        val allTasks by sharedViewModel.allTasks.collectAsState()
         TasksListScreen(
+            tasks = allTasks,
+            onTaskItemClick = { taskId ->
+
+            },
             navigateToTaskScreen = navigateToTaskScreen,
             searchAppBarState = sharedViewModel.searchAppBarState.value,
             searchQuery = sharedViewModel.searchQueryState.value,

@@ -1,22 +1,26 @@
 package com.example.to_doapp.ui.tasksList.screen
 
 import android.content.res.Configuration
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.to_doapp.data.model.Priority
+import com.example.to_doapp.data.model.ToDoTask
 import com.example.to_doapp.ui.tasksList.component.AddItemFab
 import com.example.to_doapp.ui.tasksList.component.MainAppbar
+import com.example.to_doapp.ui.tasksList.component.TasksList
 import com.example.to_doapp.ui.tasksList.state.SearchAppBarState
 import com.example.to_doapp.ui.theme.ToDoAppTheme
 
 @Composable
 fun TasksListScreen(
     modifier: Modifier = Modifier,
+    tasks: List<ToDoTask>,
+    onTaskItemClick: (taskId: Int) -> Unit,
     navigateToTaskScreen: (taskId: Int) -> Unit,
     searchAppBarState: SearchAppBarState,
     searchQuery: String,
@@ -44,13 +48,13 @@ fun TasksListScreen(
             )
         }
     ) { paddingValues ->
-        Column(
+        TasksList(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-
-        }
+                .fillMaxWidth()
+                .padding(paddingValues),
+            tasks = tasks,
+            onTaskItemClick = onTaskItemClick
+        )
     }
 }
 
@@ -60,12 +64,33 @@ fun TasksListScreen(
 private fun TasksListScreenPrev() {
     ToDoAppTheme {
         TasksListScreen(
+            tasks = listOf(
+                ToDoTask(
+                    id = 0,
+                    title = "This is the test title.",
+                    description = "This is the test description. This is the test description.",
+                    priority = Priority.HIGH
+                ),
+                ToDoTask(
+                    id = 1,
+                    title = "This is the test title.",
+                    description = "This is the test description. This is the test description.",
+                    priority = Priority.MEDIUM
+                ),
+                ToDoTask(
+                    id = 2,
+                    title = "This is the test title.",
+                    description = "This is the test description. This is the test description.",
+                    priority = Priority.LOW
+                )
+            ),
+            onTaskItemClick = {},
             navigateToTaskScreen = {},
             searchAppBarState = SearchAppBarState.CLOSED,
             searchQuery = "",
             onSearchActionClick = {},
             onSearchQueryChange = {},
-            onSearchAppBarClose = {}
+            onSearchAppBarClose = {},
         )
     }
 }
