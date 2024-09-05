@@ -9,4 +9,6 @@ object Constants {
 
     const val TASKS_LIST_ROUTE = "task_list/{$TASKS_LIST_ROUTE_ARG1}"
     const val TASK_ROUTE = "task/{$TASK_ROUTE_ARG1}"
+
+    const val MAX_TITLE_LENGTH = 20
 }

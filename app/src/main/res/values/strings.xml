@@ -14,4 +14,8 @@
     <string name="back">Back</string>
     <string name="close">Close</string>
     <string name="cancel">Cancel</string>
+    <string name="toggle_dropdown">Toggle Dropdown</string>
+    <string name="dropdown_angle">DropDown Angle</string>
+    <string name="title">Title</string>
+    <string name="desc">Description</string>
 </resources>

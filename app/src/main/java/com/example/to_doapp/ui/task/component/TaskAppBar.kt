@@ -23,30 +23,27 @@ import com.example.to_doapp.R
 import com.example.to_doapp.data.model.ToDoTask
 import com.example.to_doapp.ui.theme.ToDoAppTheme
 import com.example.to_doapp.util.Action
-import com.example.to_doapp.util.Response
 
 @Composable
 fun TaskAppBar(
     modifier: Modifier = Modifier,
-    taskResponse: Response<ToDoTask?>,
+    selectedTask: ToDoTask?,
     navigateToTasksListScreen: (action: Action) -> Unit
 ) {
-    if (taskResponse is Response.Success) {
-        if (taskResponse.data == null) {
-            NewTaskAppBar(
-                modifier = modifier,
-                onBackClick = navigateToTasksListScreen,
-                onSaveClick = navigateToTasksListScreen,
-            )
-        } else {
-            ExistingTaskAppBar(
-                modifier = modifier,
-                taskTitle = taskResponse.data.title,
-                onCloseClick = navigateToTasksListScreen,
-                onDeleteClick = navigateToTasksListScreen,
-                onUpdateClick = navigateToTasksListScreen,
-            )
-        }
+    if (selectedTask == null) {
+        NewTaskAppBar(
+            modifier = modifier,
+            onBackClick = navigateToTasksListScreen,
+            onSaveClick = navigateToTasksListScreen,
+        )
+    } else {
+        ExistingTaskAppBar(
+            modifier = modifier,
+            taskTitle = selectedTask.title,
+            onCloseClick = navigateToTasksListScreen,
+            onDeleteClick = navigateToTasksListScreen,
+            onUpdateClick = navigateToTasksListScreen,
+        )
     }
 }
 

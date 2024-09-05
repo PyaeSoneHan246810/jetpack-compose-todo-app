@@ -12,8 +12,8 @@ import com.example.to_doapp.data.model.ToDoTask
 import com.example.to_doapp.ui.tasksList.component.AddItemFab
 import com.example.to_doapp.ui.tasksList.component.EmptyTasks
 import com.example.to_doapp.ui.tasksList.component.LoadingTasks
-import com.example.to_doapp.ui.tasksList.component.TasksListAppBar
 import com.example.to_doapp.ui.tasksList.component.TasksList
+import com.example.to_doapp.ui.tasksList.component.TasksListAppBar
 import com.example.to_doapp.ui.tasksList.state.SearchAppBarState
 import com.example.to_doapp.ui.theme.ToDoAppTheme
 import com.example.to_doapp.util.Response
