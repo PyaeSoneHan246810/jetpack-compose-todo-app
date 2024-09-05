@@ -39,7 +39,7 @@ import com.example.to_doapp.ui.theme.TOP_APP_BAR_HEIGHT
 import com.example.to_doapp.ui.theme.ToDoAppTheme
 
 @Composable
-fun MainAppbar(
+fun TasksListAppBar(
     modifier: Modifier = Modifier,
     searchAppBarState: SearchAppBarState,
     searchQuery: String,

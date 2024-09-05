@@ -25,7 +25,7 @@ fun AddItemFab(
     ) {
         Icon(
             imageVector = Icons.Filled.Add,
-            contentDescription = stringResource(id = R.string.add_task_button),
+            contentDescription = stringResource(id = R.string.add_task),
         )
     }
 }

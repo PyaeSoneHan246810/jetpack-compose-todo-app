@@ -29,13 +29,27 @@ class SharedViewModel @Inject constructor(
         _allTasksResponse.value = Response.Loading
         try {
             viewModelScope.launch {
-                delay(2000)
                 toDoRepository.getAllTasks().collect { allTasks ->
                     _allTasksResponse.value = Response.Success(data = allTasks)
                 }
             }
         } catch (e: Exception) {
             _allTasksResponse.value = Response.Error(error = e)
+        }
+    }
+
+    private val _taskResponse = MutableStateFlow<Response<ToDoTask?>>(Response.Success(data = null))
+    val taskResponse: StateFlow<Response<ToDoTask?>> = _taskResponse
+    fun getSelectedTask(taskId: Int) {
+        _taskResponse.value = Response.Loading
+        try {
+            viewModelScope.launch {
+                toDoRepository.getSelectedTask(taskId = taskId).collect { task ->
+                    _taskResponse.value = Response.Success(data = task)
+                }
+            }
+        } catch (e: Exception) {
+            _taskResponse.value = Response.Error(error = e)
         }
     }
 }

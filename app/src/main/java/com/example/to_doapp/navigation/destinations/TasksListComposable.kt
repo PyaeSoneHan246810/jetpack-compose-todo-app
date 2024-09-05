@@ -32,9 +32,6 @@ fun NavGraphBuilder.tasksListComposable(
         val allTasksResponse by sharedViewModel.allTasksResponse.collectAsState()
         TasksListScreen(
             tasksResponse = allTasksResponse,
-            onTaskItemClick = { taskId ->
-
-            },
             navigateToTaskScreen = navigateToTaskScreen,
             searchAppBarState = sharedViewModel.searchAppBarState.value,
             searchQuery = sharedViewModel.searchQueryState.value,

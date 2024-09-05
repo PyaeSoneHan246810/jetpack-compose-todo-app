@@ -12,7 +12,7 @@ class ToDoRepository @Inject constructor(
 ) {
     fun getAllTasks(): Flow<List<ToDoTask>> = todoDao.getAllTasks()
 
-    fun getSelectedTask(taskId: Int): Flow<ToDoTask> = todoDao.getSelectedTask(taskId)
+    fun getSelectedTask(taskId: Int): Flow<ToDoTask?> = todoDao.getSelectedTask(taskId)
 
     suspend fun addNewTask(toDoTask: ToDoTask) = todoDao.addNewTask(toDoTask)
 

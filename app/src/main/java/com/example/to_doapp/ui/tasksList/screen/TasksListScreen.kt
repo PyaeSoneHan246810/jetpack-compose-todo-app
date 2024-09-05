@@ -12,7 +12,7 @@ import com.example.to_doapp.data.model.ToDoTask
 import com.example.to_doapp.ui.tasksList.component.AddItemFab
 import com.example.to_doapp.ui.tasksList.component.EmptyTasks
 import com.example.to_doapp.ui.tasksList.component.LoadingTasks
-import com.example.to_doapp.ui.tasksList.component.MainAppbar
+import com.example.to_doapp.ui.tasksList.component.TasksListAppBar
 import com.example.to_doapp.ui.tasksList.component.TasksList
 import com.example.to_doapp.ui.tasksList.state.SearchAppBarState
 import com.example.to_doapp.ui.theme.ToDoAppTheme
@@ -22,7 +22,6 @@ import com.example.to_doapp.util.Response
 fun TasksListScreen(
     modifier: Modifier = Modifier,
     tasksResponse: Response<List<ToDoTask>>,
-    onTaskItemClick: (taskId: Int) -> Unit,
     navigateToTaskScreen: (taskId: Int) -> Unit,
     searchAppBarState: SearchAppBarState,
     searchQuery: String,
@@ -34,7 +33,7 @@ fun TasksListScreen(
         modifier = modifier,
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            MainAppbar(
+            TasksListAppBar(
                 searchAppBarState = searchAppBarState,
                 searchQuery = searchQuery,
                 onSearchActionClick = onSearchActionClick,
@@ -54,7 +53,9 @@ fun TasksListScreen(
             modifier = Modifier
                 .padding(paddingValues),
             tasksResponse = tasksResponse,
-            onTaskItemClick = onTaskItemClick
+            onTaskItemClick = { taskId ->
+                navigateToTaskScreen(taskId)
+            }
         )
     }
 }
@@ -112,7 +113,6 @@ private fun TasksListScreenPrev() {
                     )
                 )
             ),
-            onTaskItemClick = {},
             navigateToTaskScreen = {},
             searchAppBarState = SearchAppBarState.CLOSED,
             searchQuery = "",
@@ -132,7 +132,6 @@ private fun EmptyTasksListScreenPrev() {
             tasksResponse = Response.Success(
                 data = listOf()
             ),
-            onTaskItemClick = {},
             navigateToTaskScreen = {},
             searchAppBarState = SearchAppBarState.CLOSED,
             searchQuery = "",
@@ -150,7 +149,6 @@ private fun LoadingTasksListScreenPrev() {
     ToDoAppTheme {
         TasksListScreen(
             tasksResponse = Response.Loading,
-            onTaskItemClick = {},
             navigateToTaskScreen = {},
             searchAppBarState = SearchAppBarState.CLOSED,
             searchQuery = "",
