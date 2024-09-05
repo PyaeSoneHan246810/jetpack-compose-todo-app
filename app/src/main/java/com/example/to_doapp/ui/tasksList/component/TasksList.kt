@@ -20,7 +20,8 @@ fun TasksList(
     onTaskItemClick: (taskId: Int) -> Unit
 ) {
     LazyColumn(
-        modifier = modifier,
+        modifier = modifier
+            .fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(MEDIUM_PADDING),
     ) {
         items(

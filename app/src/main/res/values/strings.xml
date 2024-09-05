@@ -8,4 +8,6 @@
     <string name="delete_all">Delete All</string>
     <string name="search_query_placeholder">Search</string>
     <string name="cancel">Cancel</string>
+    <string name="empty_tasks">Empty Tasks</string>
+    <string name="loading_tasks">Loading Tasks</string>
 </resources>

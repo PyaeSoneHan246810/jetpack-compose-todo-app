@@ -29,9 +29,9 @@ fun NavGraphBuilder.tasksListComposable(
         LaunchedEffect(key1 = true) {
             sharedViewModel.getAllTasks()
         }
-        val allTasks by sharedViewModel.allTasks.collectAsState()
+        val allTasksResponse by sharedViewModel.allTasksResponse.collectAsState()
         TasksListScreen(
-            tasks = allTasks,
+            tasksResponse = allTasksResponse,
             onTaskItemClick = { taskId ->
 
             },
