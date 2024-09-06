@@ -15,11 +15,16 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.to_doapp.R
+import com.example.to_doapp.components.DeleteConfirmDialog
 import com.example.to_doapp.data.model.ToDoTask
 import com.example.to_doapp.ui.theme.ToDoAppTheme
 import com.example.to_doapp.util.Action
@@ -56,6 +61,9 @@ fun ExistingTaskAppBar(
     onDeleteClick: (action: Action) -> Unit,
     onUpdateClick: (action: Action) -> Unit,
 ) {
+    var openDialog by remember {
+        mutableStateOf(false)
+    }
     TopAppBar(
         modifier = modifier
             .fillMaxWidth(),
@@ -87,7 +95,7 @@ fun ExistingTaskAppBar(
         actions = {
             IconButton(
                 onClick = {
-                    onDeleteClick(Action.DELETE)
+                    openDialog = true
                 }
             ) {
                 Icon(
@@ -105,6 +113,17 @@ fun ExistingTaskAppBar(
                     contentDescription = stringResource(id = R.string.update_task)
                 )
             }
+            DeleteConfirmDialog(
+                title = stringResource(id = R.string.delete_task),
+                message = stringResource(id = R.string.delete_confirm),
+                openDialog = openDialog,
+                onClose = {
+                    openDialog = false
+                },
+                onConfirm = {
+                    onDeleteClick(Action.DELETE)
+                }
+            )
         }
     )
 }

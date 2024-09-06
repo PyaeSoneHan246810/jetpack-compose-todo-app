@@ -32,11 +32,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.to_doapp.R
+import com.example.to_doapp.components.DeleteConfirmDialog
 import com.example.to_doapp.components.PriorityItem
 import com.example.to_doapp.data.model.Priority
 import com.example.to_doapp.ui.tasksList.state.SearchAppBarState
 import com.example.to_doapp.ui.theme.TOP_APP_BAR_HEIGHT
 import com.example.to_doapp.ui.theme.ToDoAppTheme
+import com.example.to_doapp.util.Action
 
 @Composable
 fun TasksListAppBar(
@@ -47,6 +49,7 @@ fun TasksListAppBar(
     onSearchQueryChange: (newQuery: String) -> Unit,
     onSearchAppBarClose: () -> Unit,
     onSearch: (searchQuery: String) -> Unit,
+    onDeleteAllActionClick: (action: Action) -> Unit,
 ) {
     when(searchAppBarState) {
         SearchAppBarState.CLOSED -> DefaultAppBar(
@@ -55,9 +58,7 @@ fun TasksListAppBar(
             onSortActionClick = { priority ->
 
             },
-            onDeleteAllActionClick = {
-
-            }
+            onDeleteAllActionClick = onDeleteAllActionClick
         )
         else -> SearchAppBar(
             modifier = modifier,
@@ -75,12 +76,15 @@ fun DefaultAppBar(
     modifier: Modifier = Modifier,
     onSearchActionClick: () -> Unit,
     onSortActionClick: (priority: Priority) -> Unit,
-    onDeleteAllActionClick: () -> Unit,
+    onDeleteAllActionClick: (action: Action) -> Unit,
 ) {
     var isSortMenuExpanded by remember {
         mutableStateOf(false)
     }
     var isMoreOptionsMenuExpanded by remember {
+        mutableStateOf(false)
+    }
+    var openDialog by remember {
         mutableStateOf(false)
     }
     TopAppBar(
@@ -177,10 +181,23 @@ fun DefaultAppBar(
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                         },
-                        onClick = onDeleteAllActionClick
+                        onClick = {
+                            openDialog = true
+                        }
                     )
                 }
             }
+            DeleteConfirmDialog(
+                title = stringResource(id = R.string.delete_all_tasks),
+                message = stringResource(id = R.string.delete_all_confirm),
+                openDialog = openDialog,
+                onClose = {
+                    openDialog = false
+                },
+                onConfirm = {
+                    onDeleteAllActionClick(Action.DELETE_ALL)
+                }
+            )
         }
     )
 }

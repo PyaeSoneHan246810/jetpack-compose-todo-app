@@ -1,6 +1,5 @@
 package com.example.to_doapp.ui.viewmodel
 
-import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -122,7 +121,7 @@ class SharedViewModel @Inject constructor(
                 deleteTask()
             }
             Action.DELETE_ALL -> {
-
+                deleteAllTasks()
             }
             Action.UNDO -> {
                 addTask()
@@ -166,6 +165,12 @@ class SharedViewModel @Inject constructor(
                 priority = taskPriority.value
             )
             toDoRepository.deleteTask(taskToDelete)
+        }
+    }
+
+    private fun deleteAllTasks() {
+        viewModelScope.launch(Dispatchers.IO) {
+            toDoRepository.deleteAllTasks()
         }
     }
 }

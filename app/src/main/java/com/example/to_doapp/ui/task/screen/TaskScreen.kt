@@ -32,10 +32,10 @@ fun TaskScreen(
     taskTitle: String,
     taskDesc: String,
     taskPriority: Priority,
-    navigateToTaskListScreen: (action: Action) -> Unit,
     onTitleChanged: (newTitle: String) -> Unit,
     onDescChanged: (newDesc: String) -> Unit,
-    onPriorityChanged: (newPriority: Priority) -> Unit
+    onPriorityChanged: (newPriority: Priority) -> Unit,
+    navigateToTaskListScreen: (action: Action) -> Unit,
 ) {
     Scaffold(
         modifier = modifier,
@@ -139,10 +139,10 @@ private fun TaskScreenPrev() {
             taskTitle = "This is the test title.",
             taskDesc = "This is the test description. This is the test description.",
             taskPriority = Priority.HIGH,
-            navigateToTaskListScreen = {},
             onTitleChanged = {},
             onDescChanged = {},
-            onPriorityChanged = {}
+            onPriorityChanged = {},
+            navigateToTaskListScreen = {},
         )
     }
 }

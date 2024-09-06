@@ -1,7 +1,6 @@
 package com.example.to_doapp.ui.tasksList.screen
 
 import android.content.res.Configuration
-import android.util.Log
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -35,41 +34,53 @@ fun TasksListScreen(
     allTasksResponse: Response<List<ToDoTask>>,
     searchTasksResponse: Response<List<ToDoTask>>,
     action: Action,
-    navigateToTaskScreen: (taskId: Int) -> Unit,
     searchAppBarState: SearchAppBarState,
     searchQuery: String,
     onSearchActionClick: () -> Unit,
     onSearchQueryChange: (newQuery: String) -> Unit,
     onSearchAppBarClose: () -> Unit,
     onSearch: (searchQuery: String) -> Unit,
-    onUndoClick: (Action) -> Unit
+    onDeleteAllActionClick: (action: Action) -> Unit,
+    onUndoClick: (action: Action) -> Unit,
+    navigateToTaskScreen: (taskId: Int) -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
     val snackBarHostState = remember {
         SnackbarHostState()
     }
     LaunchedEffect(key1 = action) {
+        val message = when(action) {
+            Action.ADD -> "Task was added successfully."
+            Action.UPDATE -> "Task was updated successfully."
+            Action.DELETE_ALL -> "All tasks are deleted successfully."
+            Action.DELETE -> "Successfully deleted the task."
+            else -> ""
+        }
+        when(action) {
+            Action.ADD, Action.UPDATE, Action.DELETE_ALL -> {
+                displaySnackBar(
+                    coroutineScope = coroutineScope,
+                    snackBarHostState = snackBarHostState,
+                    message = message
+                )
+            }
+            Action.DELETE -> {
+                displayUndoSnackBar(
+                    coroutineScope = coroutineScope,
+                    snackBarHostState = snackBarHostState,
+                    message = message,
+                    onUndoClick = {
+                        onUndoClick(Action.UNDO)
+                    }
+                )
+            }
+            else -> {}
+        }
         if (action == Action.ADD) {
             displaySnackBar(
                 coroutineScope = coroutineScope,
                 snackBarHostState = snackBarHostState,
                 message = "Task was added successfully."
-            )
-        }
-        if (action == Action.UPDATE) {
-            displaySnackBar(
-                coroutineScope = coroutineScope,
-                snackBarHostState = snackBarHostState,
-                message = "Task was updated successfully."
-            )
-        }
-        if (action == Action.DELETE) {
-            displayUndoSnackBar(
-                coroutineScope = coroutineScope,
-                snackBarHostState = snackBarHostState,
-                onUndoClick = {
-                    onUndoClick(Action.UNDO)
-                }
             )
         }
     }
@@ -83,7 +94,10 @@ fun TasksListScreen(
                 onSearchActionClick = onSearchActionClick,
                 onSearchQueryChange = onSearchQueryChange,
                 onSearchAppBarClose = onSearchAppBarClose,
-                onSearch = onSearch
+                onSearch = onSearch,
+                onDeleteAllActionClick = { action ->
+                    onDeleteAllActionClick(action)
+                }
             )
         },
         floatingActionButton = {
@@ -105,7 +119,6 @@ fun TasksListScreen(
                     .padding(paddingValues)
             )
         } else if (response is Response.Success) {
-
             TasksListContent(
                 modifier = Modifier
                     .padding(paddingValues),
@@ -147,10 +160,10 @@ fun displaySnackBar(coroutineScope: CoroutineScope, snackBarHostState: SnackbarH
     }
 }
 
-fun displayUndoSnackBar(coroutineScope: CoroutineScope, snackBarHostState: SnackbarHostState, onUndoClick: () -> Unit) {
+fun displayUndoSnackBar(coroutineScope: CoroutineScope, snackBarHostState: SnackbarHostState, message: String, onUndoClick: () -> Unit) {
     coroutineScope.launch {
         val result = snackBarHostState.showSnackbar(
-            message = "Successfully deleted the task.",
+            message = message,
             actionLabel = "Undo",
             duration = SnackbarDuration.Long
         )
@@ -204,14 +217,15 @@ private fun TasksListScreenPrev() {
                 )
             ),
             action = Action.NO_ACTION,
-            navigateToTaskScreen = {},
             searchAppBarState = SearchAppBarState.CLOSED,
             searchQuery = "",
             onSearchActionClick = {},
             onSearchQueryChange = {},
             onSearchAppBarClose = {},
             onSearch = {},
-            onUndoClick = {}
+            onDeleteAllActionClick = {},
+            onUndoClick = {},
+            navigateToTaskScreen = {},
         )
     }
 }
@@ -229,14 +243,15 @@ private fun EmptyTasksListScreenPrev() {
                 data = listOf()
             ),
             action = Action.NO_ACTION,
-            navigateToTaskScreen = {},
             searchAppBarState = SearchAppBarState.CLOSED,
             searchQuery = "",
             onSearchActionClick = {},
             onSearchQueryChange = {},
             onSearchAppBarClose = {},
             onSearch = {},
-            onUndoClick = {}
+            onDeleteAllActionClick = {},
+            onUndoClick = {},
+            navigateToTaskScreen = {},
         )
     }
 }
@@ -250,14 +265,15 @@ private fun LoadingTasksListScreenPrev() {
             allTasksResponse = Response.Loading,
             searchTasksResponse = Response.Loading,
             action = Action.NO_ACTION,
-            navigateToTaskScreen = {},
             searchAppBarState = SearchAppBarState.CLOSED,
             searchQuery = "",
             onSearchActionClick = {},
             onSearchQueryChange = {},
             onSearchAppBarClose = {},
             onSearch = {},
-            onUndoClick = {}
+            onDeleteAllActionClick = {},
+            onUndoClick = {},
+            navigateToTaskScreen = {},
         )
     }
 }

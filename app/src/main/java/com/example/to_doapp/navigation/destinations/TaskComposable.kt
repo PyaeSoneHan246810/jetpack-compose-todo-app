@@ -45,6 +45,15 @@ fun NavGraphBuilder.taskComposable(
             taskTitle = sharedViewModel.taskTitle.value,
             taskDesc = sharedViewModel.taskDesc.value,
             taskPriority = sharedViewModel.taskPriority.value,
+            onTitleChanged = { newTitle ->
+                sharedViewModel.updateTitle(newTitle)
+            },
+            onDescChanged = { newDesc ->
+                sharedViewModel.taskDesc.value = newDesc
+            },
+            onPriorityChanged = { newPriority ->
+                sharedViewModel.taskPriority.value = newPriority
+            },
             navigateToTaskListScreen = { action ->
                 if (action == Action.NO_ACTION) {
                     navigateToTaskListScreen(action)
@@ -56,15 +65,6 @@ fun NavGraphBuilder.taskComposable(
                     }
                 }
             },
-            onTitleChanged = { newTitle ->
-                sharedViewModel.updateTitle(newTitle)
-            },
-            onDescChanged = { newDesc ->
-                sharedViewModel.taskDesc.value = newDesc
-            },
-            onPriorityChanged = { newPriority ->
-                sharedViewModel.taskPriority.value = newPriority
-            }
         )
     }
 }

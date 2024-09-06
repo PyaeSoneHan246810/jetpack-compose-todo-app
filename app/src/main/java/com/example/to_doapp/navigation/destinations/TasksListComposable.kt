@@ -1,6 +1,5 @@
 package com.example.to_doapp.navigation.destinations
 
-import android.util.Log
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -13,7 +12,6 @@ import com.example.to_doapp.ui.tasksList.state.SearchAppBarState
 import com.example.to_doapp.ui.viewmodel.SharedViewModel
 import com.example.to_doapp.util.Constants
 import com.example.to_doapp.util.toAction
-import kotlin.math.log
 
 fun NavGraphBuilder.tasksListComposable(
     navigateToTaskScreen: (taskId: Int) -> Unit,
@@ -46,7 +44,6 @@ fun NavGraphBuilder.tasksListComposable(
             allTasksResponse = allTasksResponse,
             searchTasksResponse = searchTasksResponse,
             action = action,
-            navigateToTaskScreen = navigateToTaskScreen,
             searchAppBarState = sharedViewModel.searchAppBarState.value,
             searchQuery = sharedViewModel.searchQueryState.value,
             onSearchActionClick = {
@@ -65,9 +62,13 @@ fun NavGraphBuilder.tasksListComposable(
             onSearch = { searchQuery ->
                 sharedViewModel.getSearchTasks(searchQuery)
             },
+            onDeleteAllActionClick = { action ->
+                sharedViewModel.action.value = action
+            },
             onUndoClick = { action ->
                 sharedViewModel.action.value = action
-            }
+            },
+            navigateToTaskScreen = navigateToTaskScreen,
         )
     }
 }
