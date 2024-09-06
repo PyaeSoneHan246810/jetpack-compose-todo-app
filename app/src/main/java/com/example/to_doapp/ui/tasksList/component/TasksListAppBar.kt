@@ -46,6 +46,7 @@ fun TasksListAppBar(
     onSearchActionClick: () -> Unit,
     onSearchQueryChange: (newQuery: String) -> Unit,
     onSearchAppBarClose: () -> Unit,
+    onSearch: (searchQuery: String) -> Unit,
 ) {
     when(searchAppBarState) {
         SearchAppBarState.CLOSED -> DefaultAppBar(
@@ -62,9 +63,7 @@ fun TasksListAppBar(
             modifier = modifier,
             value = searchQuery,
             onValueChange = onSearchQueryChange,
-            onSearchClick = { searchQuery ->
-
-            },
+            onSearch = onSearch,
             onCloseClick = onSearchAppBarClose
         )
     }
@@ -191,7 +190,7 @@ fun SearchAppBar(
     modifier: Modifier = Modifier,
     value: String,
     onValueChange: (newValue: String) -> Unit,
-    onSearchClick: (searchQuery: String) -> Unit,
+    onSearch: (searchQuery: String) -> Unit,
     onCloseClick: () -> Unit,
 ) {
     Surface(
@@ -203,7 +202,6 @@ fun SearchAppBar(
         TextField(
             modifier = Modifier
                 .fillMaxWidth(),
-
             value = value,
             onValueChange = onValueChange,
             textStyle = MaterialTheme.typography.titleMedium,
@@ -256,7 +254,7 @@ fun SearchAppBar(
             keyboardActions = KeyboardActions(
                 onSearch = {
                     val searchQuery = value.trim()
-                    onSearchClick(searchQuery)
+                    onSearch(searchQuery)
                 }
             )
         )
@@ -282,7 +280,7 @@ private fun SearchAppBarPrev() {
         SearchAppBar(
             value = "",
             onValueChange ={},
-            onSearchClick = {},
+            onSearch = {},
             onCloseClick = {}
         )
     }

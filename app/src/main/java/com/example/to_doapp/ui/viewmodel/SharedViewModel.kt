@@ -1,5 +1,6 @@
 package com.example.to_doapp.ui.viewmodel
 
+import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -87,6 +88,24 @@ class SharedViewModel @Inject constructor(
         }
     }
 
+    //Get search tasks
+    private val _searchTasksResponse = MutableStateFlow<Response<List<ToDoTask>>>(Response.Idle)
+    val searchTasksResponse: StateFlow<Response<List<ToDoTask>>> = _searchTasksResponse
+
+    fun getSearchTasks(searchQuery: String) {
+        _searchTasksResponse.value = Response.Loading
+        try {
+            viewModelScope.launch(Dispatchers.IO) {
+                toDoRepository.searchTasks("%$searchQuery%").collect {  searchTasks ->
+                    _searchTasksResponse.value = Response.Success(data = searchTasks)
+                }
+            }
+        } catch (e: Exception) {
+            _searchTasksResponse.value = Response.Error(error = e)
+        }
+        searchAppBarState.value = SearchAppBarState.TRIGGERED
+    }
+
     //Database action
     val action: MutableState<Action> = mutableStateOf(Action.NO_ACTION)
 
@@ -106,11 +125,9 @@ class SharedViewModel @Inject constructor(
 
             }
             Action.UNDO -> {
-
+                addTask()
             }
-            Action.NO_ACTION -> {
-
-            }
+            Action.NO_ACTION -> {}
         }
         this.action.value = Action.NO_ACTION
     }
@@ -125,6 +142,7 @@ class SharedViewModel @Inject constructor(
             )
             toDoRepository.addNewTask(newTask)
         }
+        searchAppBarState.value = SearchAppBarState.CLOSED
     }
 
     private fun updateTask() {

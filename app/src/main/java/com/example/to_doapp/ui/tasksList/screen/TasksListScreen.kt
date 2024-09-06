@@ -1,12 +1,14 @@
 package com.example.to_doapp.ui.tasksList.screen
 
 import android.content.res.Configuration
+import android.util.Log
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -30,7 +32,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun TasksListScreen(
     modifier: Modifier = Modifier,
-    tasksResponse: Response<List<ToDoTask>>,
+    allTasksResponse: Response<List<ToDoTask>>,
+    searchTasksResponse: Response<List<ToDoTask>>,
     action: Action,
     navigateToTaskScreen: (taskId: Int) -> Unit,
     searchAppBarState: SearchAppBarState,
@@ -38,24 +41,35 @@ fun TasksListScreen(
     onSearchActionClick: () -> Unit,
     onSearchQueryChange: (newQuery: String) -> Unit,
     onSearchAppBarClose: () -> Unit,
+    onSearch: (searchQuery: String) -> Unit,
+    onUndoClick: (Action) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
     val snackBarHostState = remember {
         SnackbarHostState()
     }
-    val snackBarMessage: String? = when(action){
-        Action.ADD -> "Task was added successfully."
-        Action.UPDATE -> "Task was updated successfully."
-        Action.DELETE -> "Task was deleted successfully."
-        Action.NO_ACTION -> null
-        else -> null
-    }
     LaunchedEffect(key1 = action) {
-        if (snackBarMessage != null) {
+        if (action == Action.ADD) {
             displaySnackBar(
                 coroutineScope = coroutineScope,
                 snackBarHostState = snackBarHostState,
-                message = snackBarMessage
+                message = "Task was added successfully."
+            )
+        }
+        if (action == Action.UPDATE) {
+            displaySnackBar(
+                coroutineScope = coroutineScope,
+                snackBarHostState = snackBarHostState,
+                message = "Task was updated successfully."
+            )
+        }
+        if (action == Action.DELETE) {
+            displayUndoSnackBar(
+                coroutineScope = coroutineScope,
+                snackBarHostState = snackBarHostState,
+                onUndoClick = {
+                    onUndoClick(Action.UNDO)
+                }
             )
         }
     }
@@ -69,6 +83,7 @@ fun TasksListScreen(
                 onSearchActionClick = onSearchActionClick,
                 onSearchQueryChange = onSearchQueryChange,
                 onSearchAppBarClose = onSearchAppBarClose,
+                onSearch = onSearch
             )
         },
         floatingActionButton = {
@@ -82,39 +97,43 @@ fun TasksListScreen(
             SnackbarHost(hostState = snackBarHostState)
         }
     ) { paddingValues ->
-        TasksListContent(
-            modifier = Modifier
-                .padding(paddingValues),
-            tasksResponse = tasksResponse,
-            onTaskItemClick = { taskId ->
-                navigateToTaskScreen(taskId)
-            }
-        )
+        val isSearchTriggered = searchAppBarState == SearchAppBarState.TRIGGERED
+        val response = if (isSearchTriggered) searchTasksResponse else allTasksResponse
+        if (response is Response.Loading) {
+            LoadingTasks(
+                modifier = Modifier
+                    .padding(paddingValues)
+            )
+        } else if (response is Response.Success) {
+
+            TasksListContent(
+                modifier = Modifier
+                    .padding(paddingValues),
+                tasks = response.data,
+                onTaskItemClick = { taskId ->
+                    navigateToTaskScreen(taskId)
+                }
+            )
+        }
     }
 }
 
 @Composable
 fun TasksListContent(
     modifier: Modifier = Modifier,
-    tasksResponse: Response<List<ToDoTask>>,
+    tasks: List<ToDoTask>,
     onTaskItemClick: (taskId: Int) -> Unit,
 ) {
-    if (tasksResponse is Response.Loading) {
-        LoadingTasks(
+    if (tasks.isEmpty()) {
+        EmptyTasks(
             modifier = modifier
         )
-    } else if (tasksResponse is Response.Success) {
-        if (tasksResponse.data.isEmpty()) {
-            EmptyTasks(
-                modifier = modifier
-            )
-        } else {
-            TasksList(
-                modifier = modifier,
-                tasks = tasksResponse.data,
-                onTaskItemClick = onTaskItemClick
-            )
-        }
+    } else {
+        TasksList(
+            modifier = modifier,
+            tasks = tasks,
+            onTaskItemClick = onTaskItemClick
+        )
     }
 }
 
@@ -128,13 +147,31 @@ fun displaySnackBar(coroutineScope: CoroutineScope, snackBarHostState: SnackbarH
     }
 }
 
+fun displayUndoSnackBar(coroutineScope: CoroutineScope, snackBarHostState: SnackbarHostState, onUndoClick: () -> Unit) {
+    coroutineScope.launch {
+        val result = snackBarHostState.showSnackbar(
+            message = "Successfully deleted the task.",
+            actionLabel = "Undo",
+            duration = SnackbarDuration.Long
+        )
+        when(result) {
+            SnackbarResult.ActionPerformed -> {
+                onUndoClick()
+            }
+            SnackbarResult.Dismissed -> {
+
+            }
+        }
+    }
+}
+
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_NO, name = "Light Mode", showBackground = true)
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, name = "Dark Mode", showBackground = true)
 @Composable
 private fun TasksListScreenPrev() {
     ToDoAppTheme {
         TasksListScreen(
-            tasksResponse = Response.Success(
+            allTasksResponse = Response.Success(
                 data = listOf(
                     ToDoTask(
                         id = 0,
@@ -156,6 +193,16 @@ private fun TasksListScreenPrev() {
                     )
                 )
             ),
+            searchTasksResponse = Response.Success(
+                data = listOf(
+                    ToDoTask(
+                        id = 0,
+                        title = "This is the test title.",
+                        description = "This is the test description. This is the test description.",
+                        priority = Priority.HIGH
+                    ),
+                )
+            ),
             action = Action.NO_ACTION,
             navigateToTaskScreen = {},
             searchAppBarState = SearchAppBarState.CLOSED,
@@ -163,6 +210,8 @@ private fun TasksListScreenPrev() {
             onSearchActionClick = {},
             onSearchQueryChange = {},
             onSearchAppBarClose = {},
+            onSearch = {},
+            onUndoClick = {}
         )
     }
 }
@@ -173,7 +222,10 @@ private fun TasksListScreenPrev() {
 private fun EmptyTasksListScreenPrev() {
     ToDoAppTheme {
         TasksListScreen(
-            tasksResponse = Response.Success(
+            allTasksResponse = Response.Success(
+                data = listOf()
+            ),
+            searchTasksResponse = Response.Success(
                 data = listOf()
             ),
             action = Action.NO_ACTION,
@@ -183,6 +235,8 @@ private fun EmptyTasksListScreenPrev() {
             onSearchActionClick = {},
             onSearchQueryChange = {},
             onSearchAppBarClose = {},
+            onSearch = {},
+            onUndoClick = {}
         )
     }
 }
@@ -193,7 +247,8 @@ private fun EmptyTasksListScreenPrev() {
 private fun LoadingTasksListScreenPrev() {
     ToDoAppTheme {
         TasksListScreen(
-            tasksResponse = Response.Loading,
+            allTasksResponse = Response.Loading,
+            searchTasksResponse = Response.Loading,
             action = Action.NO_ACTION,
             navigateToTaskScreen = {},
             searchAppBarState = SearchAppBarState.CLOSED,
@@ -201,6 +256,8 @@ private fun LoadingTasksListScreenPrev() {
             onSearchActionClick = {},
             onSearchQueryChange = {},
             onSearchAppBarClose = {},
+            onSearch = {},
+            onUndoClick = {}
         )
     }
 }

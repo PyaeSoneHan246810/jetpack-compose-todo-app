@@ -29,7 +29,7 @@ interface ToDoDao {
     @Query("DELETE FROM todo_table")
     suspend fun deleteAllTasks()
 
-    @Query("SELECT * FROM todo_table WHERE title = :searchQuery OR description = :searchQuery")
+    @Query("SELECT * FROM todo_table WHERE title LIKE :searchQuery OR description LIKE :searchQuery")
     fun searchTasks(searchQuery: String): Flow<List<ToDoTask>>
 
     @Query("SELECT * FROM todo_table ORDER BY CASE WHEN priority LIKE 'L%' THEN 1 WHEN priority LIKE 'M%' THEN 2 WHEN priority LIKE 'H%' THEN 3 END")
