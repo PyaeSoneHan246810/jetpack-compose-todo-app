@@ -1,8 +1,11 @@
 package com.example.to_doapp.navigation.destinations
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
@@ -34,12 +37,23 @@ fun NavGraphBuilder.taskComposable(
         LaunchedEffect(key1 = selectedTask) {
             sharedViewModel.updateTaskProperties(selectedTask)
         }
+        val context = LocalContext.current
         TaskScreen(
             selectedTask = selectedTask,
             taskTitle = sharedViewModel.taskTitle.value,
             taskDesc = sharedViewModel.taskDesc.value,
             taskPriority = sharedViewModel.taskPriority.value,
-            navigateToTaskListScreen = navigateToTaskListScreen,
+            navigateToTaskListScreen = { action ->
+                if (action == Action.NO_ACTION) {
+                    navigateToTaskListScreen(action)
+                } else {
+                    if (sharedViewModel.validateFields()) {
+                        navigateToTaskListScreen(action)
+                    } else {
+                        displayToast(context)
+                    }
+                }
+            },
             onTitleChanged = { newTitle ->
                 sharedViewModel.updateTitle(newTitle)
             },
@@ -51,4 +65,8 @@ fun NavGraphBuilder.taskComposable(
             }
         )
     }
+}
+
+fun displayToast(context: Context) {
+    Toast.makeText(context, "Please enter all information.", Toast.LENGTH_SHORT).show()
 }

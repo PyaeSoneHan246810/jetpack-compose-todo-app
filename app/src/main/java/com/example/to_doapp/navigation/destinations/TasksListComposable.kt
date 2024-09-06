@@ -11,6 +11,7 @@ import com.example.to_doapp.ui.tasksList.screen.TasksListScreen
 import com.example.to_doapp.ui.tasksList.state.SearchAppBarState
 import com.example.to_doapp.ui.viewmodel.SharedViewModel
 import com.example.to_doapp.util.Constants
+import com.example.to_doapp.util.toAction
 
 fun NavGraphBuilder.tasksListComposable(
     navigateToTaskScreen: (taskId: Int) -> Unit,
@@ -25,13 +26,22 @@ fun NavGraphBuilder.tasksListComposable(
                 type = NavType.StringType
             },
         )
-    ) {
+    ) { navBackStackEntry ->
+        val action = navBackStackEntry.arguments!!.getString(Constants.TASKS_LIST_ROUTE_ARG1).toAction()
         LaunchedEffect(key1 = true) {
             sharedViewModel.getAllTasks()
         }
         val allTasksResponse by sharedViewModel.allTasksResponse.collectAsState()
+        LaunchedEffect(key1 = action) {
+            sharedViewModel.action.value = action
+        }
+        val databaseAction by sharedViewModel.action
+        LaunchedEffect(key1 = databaseAction) {
+            sharedViewModel.handleDatabaseAction(databaseAction)
+        }
         TasksListScreen(
             tasksResponse = allTasksResponse,
+            action = action,
             navigateToTaskScreen = navigateToTaskScreen,
             searchAppBarState = sharedViewModel.searchAppBarState.value,
             searchQuery = sharedViewModel.searchQueryState.value,
