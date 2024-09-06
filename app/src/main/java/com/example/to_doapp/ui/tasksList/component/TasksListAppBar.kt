@@ -49,15 +49,14 @@ fun TasksListAppBar(
     onSearchQueryChange: (newQuery: String) -> Unit,
     onSearchAppBarClose: () -> Unit,
     onSearch: (searchQuery: String) -> Unit,
+    onSortActionClick: (priority: Priority) -> Unit,
     onDeleteAllActionClick: (action: Action) -> Unit,
 ) {
     when(searchAppBarState) {
         SearchAppBarState.CLOSED -> DefaultAppBar(
             modifier = modifier,
             onSearchActionClick = onSearchActionClick,
-            onSortActionClick = { priority ->
-
-            },
+            onSortActionClick = onSortActionClick,
             onDeleteAllActionClick = onDeleteAllActionClick
         )
         else -> SearchAppBar(
@@ -137,20 +136,20 @@ fun DefaultAppBar(
                     )
                     DropdownMenuItem(
                         text = {
-                            PriorityItem(priority = Priority.MEDIUM)
-                        },
-                        onClick = {
-                            isSortMenuExpanded = false
-                            onSortActionClick(Priority.MEDIUM)
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = {
                             PriorityItem(priority = Priority.HIGH)
                         },
                         onClick = {
                             isSortMenuExpanded = false
                             onSortActionClick(Priority.HIGH)
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = {
+                            PriorityItem(priority = Priority.NONE)
+                        },
+                        onClick = {
+                            isSortMenuExpanded = false
+                            onSortActionClick(Priority.NONE)
                         }
                     )
                 }
@@ -182,6 +181,7 @@ fun DefaultAppBar(
                             )
                         },
                         onClick = {
+                            isMoreOptionsMenuExpanded = false
                             openDialog = true
                         }
                     )

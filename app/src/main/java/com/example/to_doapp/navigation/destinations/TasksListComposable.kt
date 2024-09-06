@@ -3,6 +3,9 @@ package com.example.to_doapp.navigation.destinations
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
@@ -27,14 +30,20 @@ fun NavGraphBuilder.tasksListComposable(
             },
         )
     ) { navBackStackEntry ->
-        val action = navBackStackEntry.arguments!!.getString(Constants.TASKS_LIST_ROUTE_ARG1).toAction()
+        var actionState by remember {
+            mutableStateOf(navBackStackEntry.arguments!!.getString(Constants.TASKS_LIST_ROUTE_ARG1).toAction())
+        }
         LaunchedEffect(key1 = true) {
+            sharedViewModel.readSortState()
             sharedViewModel.getAllTasks()
         }
         val allTasksResponse by sharedViewModel.allTasksResponse.collectAsState()
         val searchTasksResponse by sharedViewModel.searchTasksResponse.collectAsState()
-        LaunchedEffect(key1 = action) {
-            sharedViewModel.action.value = action
+        val sortStateResponse by sharedViewModel.sortStateResponse.collectAsState()
+        val lowPriorityTasks by sharedViewModel.lowPriorityTasks.collectAsState()
+        val highPriorityTasks by sharedViewModel.highPriorityTasks.collectAsState()
+        LaunchedEffect(key1 = actionState) {
+            sharedViewModel.action.value = actionState
         }
         val databaseAction by sharedViewModel.action
         LaunchedEffect(key1 = databaseAction) {
@@ -43,7 +52,10 @@ fun NavGraphBuilder.tasksListComposable(
         TasksListScreen(
             allTasksResponse = allTasksResponse,
             searchTasksResponse = searchTasksResponse,
-            action = action,
+            sortStateResponse = sortStateResponse,
+            lowPriorityTasks = lowPriorityTasks,
+            highPriorityTasks = highPriorityTasks,
+            action = actionState,
             searchAppBarState = sharedViewModel.searchAppBarState.value,
             searchQuery = sharedViewModel.searchQueryState.value,
             onSearchActionClick = {
@@ -62,13 +74,21 @@ fun NavGraphBuilder.tasksListComposable(
             onSearch = { searchQuery ->
                 sharedViewModel.getSearchTasks(searchQuery)
             },
+            onSortActionClick = { priority ->
+                sharedViewModel.saveSortState(priority)
+            },
             onDeleteAllActionClick = { action ->
                 sharedViewModel.action.value = action
+                actionState = action
             },
             onUndoClick = { action ->
                 sharedViewModel.action.value = action
+                actionState = action
             },
             navigateToTaskScreen = navigateToTaskScreen,
+            resetDatabaseAction = {
+                sharedViewModel.resetDatabaseAction()
+            }
         )
     }
 }

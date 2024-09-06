@@ -1,6 +1,7 @@
 package com.example.to_doapp.ui.tasksList.screen
 
 import android.content.res.Configuration
+import android.util.Log
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -33,6 +34,9 @@ fun TasksListScreen(
     modifier: Modifier = Modifier,
     allTasksResponse: Response<List<ToDoTask>>,
     searchTasksResponse: Response<List<ToDoTask>>,
+    sortStateResponse: Response<Priority>,
+    lowPriorityTasks: List<ToDoTask>,
+    highPriorityTasks: List<ToDoTask>,
     action: Action,
     searchAppBarState: SearchAppBarState,
     searchQuery: String,
@@ -40,9 +44,11 @@ fun TasksListScreen(
     onSearchQueryChange: (newQuery: String) -> Unit,
     onSearchAppBarClose: () -> Unit,
     onSearch: (searchQuery: String) -> Unit,
+    onSortActionClick: (Priority) -> Unit,
     onDeleteAllActionClick: (action: Action) -> Unit,
     onUndoClick: (action: Action) -> Unit,
     navigateToTaskScreen: (taskId: Int) -> Unit,
+    resetDatabaseAction: () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
     val snackBarHostState = remember {
@@ -56,12 +62,14 @@ fun TasksListScreen(
             Action.DELETE -> "Successfully deleted the task."
             else -> ""
         }
+        Log.d("Action", action.name)
         when(action) {
             Action.ADD, Action.UPDATE, Action.DELETE_ALL -> {
                 displaySnackBar(
                     coroutineScope = coroutineScope,
                     snackBarHostState = snackBarHostState,
-                    message = message
+                    message = message,
+                    onDismissed = resetDatabaseAction
                 )
             }
             Action.DELETE -> {
@@ -71,17 +79,11 @@ fun TasksListScreen(
                     message = message,
                     onUndoClick = {
                         onUndoClick(Action.UNDO)
-                    }
+                    },
+                    onDismissed = resetDatabaseAction
                 )
             }
             else -> {}
-        }
-        if (action == Action.ADD) {
-            displaySnackBar(
-                coroutineScope = coroutineScope,
-                snackBarHostState = snackBarHostState,
-                message = "Task was added successfully."
-            )
         }
     }
     Scaffold(
@@ -95,9 +97,8 @@ fun TasksListScreen(
                 onSearchQueryChange = onSearchQueryChange,
                 onSearchAppBarClose = onSearchAppBarClose,
                 onSearch = onSearch,
-                onDeleteAllActionClick = { action ->
-                    onDeleteAllActionClick(action)
-                }
+                onSortActionClick = onSortActionClick,
+                onDeleteAllActionClick = onDeleteAllActionClick
             )
         },
         floatingActionButton = {
@@ -111,22 +112,64 @@ fun TasksListScreen(
             SnackbarHost(hostState = snackBarHostState)
         }
     ) { paddingValues ->
-        val isSearchTriggered = searchAppBarState == SearchAppBarState.TRIGGERED
-        val response = if (isSearchTriggered) searchTasksResponse else allTasksResponse
-        if (response is Response.Loading) {
-            LoadingTasks(
-                modifier = Modifier
-                    .padding(paddingValues)
-            )
-        } else if (response is Response.Success) {
-            TasksListContent(
-                modifier = Modifier
-                    .padding(paddingValues),
-                tasks = response.data,
-                onTaskItemClick = { taskId ->
-                    navigateToTaskScreen(taskId)
+        if (sortStateResponse is Response.Success) {
+            val isSearchTriggered = searchAppBarState == SearchAppBarState.TRIGGERED
+            when {
+                isSearchTriggered -> {
+                    if (searchTasksResponse is Response.Loading) {
+                        LoadingTasks(
+                            modifier = Modifier
+                                .padding(paddingValues)
+                        )
+                    } else if (searchTasksResponse is Response.Success) {
+                        TasksListContent(
+                            modifier = Modifier
+                                .padding(paddingValues),
+                            tasks = searchTasksResponse.data,
+                            onTaskItemClick = { taskId ->
+                                navigateToTaskScreen(taskId)
+                            }
+                        )
+                    }
                 }
-            )
+                sortStateResponse.data == Priority.NONE -> {
+                    if (allTasksResponse is Response.Loading) {
+                        LoadingTasks(
+                            modifier = Modifier
+                                .padding(paddingValues)
+                        )
+                    } else if (allTasksResponse is Response.Success) {
+                        TasksListContent(
+                            modifier = Modifier
+                                .padding(paddingValues),
+                            tasks = allTasksResponse.data,
+                            onTaskItemClick = { taskId ->
+                                navigateToTaskScreen(taskId)
+                            }
+                        )
+                    }
+                }
+                sortStateResponse.data == Priority.LOW -> {
+                    TasksListContent(
+                        modifier = Modifier
+                            .padding(paddingValues),
+                        tasks = lowPriorityTasks,
+                        onTaskItemClick = { taskId ->
+                            navigateToTaskScreen(taskId)
+                        }
+                    )
+                }
+                sortStateResponse.data == Priority.HIGH -> {
+                    TasksListContent(
+                        modifier = Modifier
+                            .padding(paddingValues),
+                        tasks = highPriorityTasks,
+                        onTaskItemClick = { taskId ->
+                            navigateToTaskScreen(taskId)
+                        }
+                    )
+                }
+            }
         }
     }
 }
@@ -150,17 +193,25 @@ fun TasksListContent(
     }
 }
 
-fun displaySnackBar(coroutineScope: CoroutineScope, snackBarHostState: SnackbarHostState, message: String) {
+fun displaySnackBar(coroutineScope: CoroutineScope, snackBarHostState: SnackbarHostState, message: String, onDismissed: () -> Unit) {
     coroutineScope.launch {
-        snackBarHostState.showSnackbar(
+        val result = snackBarHostState.showSnackbar(
             message = message,
             actionLabel = "Ok",
             duration = SnackbarDuration.Short,
         )
+        when(result) {
+            SnackbarResult.ActionPerformed -> {
+
+            }
+            SnackbarResult.Dismissed -> {
+                onDismissed()
+            }
+        }
     }
 }
 
-fun displayUndoSnackBar(coroutineScope: CoroutineScope, snackBarHostState: SnackbarHostState, message: String, onUndoClick: () -> Unit) {
+fun displayUndoSnackBar(coroutineScope: CoroutineScope, snackBarHostState: SnackbarHostState, message: String, onUndoClick: () -> Unit, onDismissed: () -> Unit) {
     coroutineScope.launch {
         val result = snackBarHostState.showSnackbar(
             message = message,
@@ -172,7 +223,7 @@ fun displayUndoSnackBar(coroutineScope: CoroutineScope, snackBarHostState: Snack
                 onUndoClick()
             }
             SnackbarResult.Dismissed -> {
-
+                onDismissed()
             }
         }
     }
@@ -216,6 +267,11 @@ private fun TasksListScreenPrev() {
                     ),
                 )
             ),
+            sortStateResponse = Response.Success(
+                data = Priority.NONE
+            ),
+            lowPriorityTasks = listOf(),
+            highPriorityTasks = listOf(),
             action = Action.NO_ACTION,
             searchAppBarState = SearchAppBarState.CLOSED,
             searchQuery = "",
@@ -223,9 +279,11 @@ private fun TasksListScreenPrev() {
             onSearchQueryChange = {},
             onSearchAppBarClose = {},
             onSearch = {},
+            onSortActionClick = {},
             onDeleteAllActionClick = {},
             onUndoClick = {},
             navigateToTaskScreen = {},
+            resetDatabaseAction = {}
         )
     }
 }
@@ -242,6 +300,11 @@ private fun EmptyTasksListScreenPrev() {
             searchTasksResponse = Response.Success(
                 data = listOf()
             ),
+            sortStateResponse = Response.Success(
+                data = Priority.NONE
+            ),
+            lowPriorityTasks = listOf(),
+            highPriorityTasks = listOf(),
             action = Action.NO_ACTION,
             searchAppBarState = SearchAppBarState.CLOSED,
             searchQuery = "",
@@ -249,9 +312,11 @@ private fun EmptyTasksListScreenPrev() {
             onSearchQueryChange = {},
             onSearchAppBarClose = {},
             onSearch = {},
+            onSortActionClick = {},
             onDeleteAllActionClick = {},
             onUndoClick = {},
             navigateToTaskScreen = {},
+            resetDatabaseAction = {}
         )
     }
 }
@@ -265,15 +330,22 @@ private fun LoadingTasksListScreenPrev() {
             allTasksResponse = Response.Loading,
             searchTasksResponse = Response.Loading,
             action = Action.NO_ACTION,
+            sortStateResponse = Response.Success(
+                data = Priority.NONE
+            ),
+            lowPriorityTasks = listOf(),
+            highPriorityTasks = listOf(),
             searchAppBarState = SearchAppBarState.CLOSED,
             searchQuery = "",
             onSearchActionClick = {},
             onSearchQueryChange = {},
             onSearchAppBarClose = {},
             onSearch = {},
+            onSortActionClick = {},
             onDeleteAllActionClick = {},
             onUndoClick = {},
             navigateToTaskScreen = {},
+            resetDatabaseAction = {}
         )
     }
 }

@@ -12,3 +12,13 @@ enum class Priority(val color: Color, val title: String) {
     MEDIUM(color = MediumPriorityColor, title = "Medium"),
     HIGH(color = HighPriorityColor, title = "High")
 }
+
+fun String.toPriority(): Priority {
+    return when(this) {
+        "None" -> Priority.NONE
+        "Low" -> Priority.LOW
+        "Medium" -> Priority.MEDIUM
+        "High" -> Priority.HIGH
+        else -> Priority.NONE
+    }
+}

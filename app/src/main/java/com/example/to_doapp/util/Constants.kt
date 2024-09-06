@@ -11,4 +11,7 @@ object Constants {
     const val TASK_ROUTE = "task/{$TASK_ROUTE_ARG1}"
 
     const val MAX_TITLE_LENGTH = 20
+
+    const val PREFERENCES_NAME = "todo_preferences"
+    const val SORT_STATE_KEY = "sort_state"
 }
