@@ -7,8 +7,11 @@ object Constants {
     const val TASKS_LIST_ROUTE_ARG1 = "action"
     const val TASK_ROUTE_ARG1 = "id"
 
+    const val SPLASH_ROUTE = "splash"
     const val TASKS_LIST_ROUTE = "task_list/{$TASKS_LIST_ROUTE_ARG1}"
     const val TASK_ROUTE = "task/{$TASK_ROUTE_ARG1}"
+
+    const val SPLASH_SCREEN_DELAY = 3000L
 
     const val MAX_TITLE_LENGTH = 20
 

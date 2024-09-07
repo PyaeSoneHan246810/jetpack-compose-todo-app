@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">To-Do App</string>
+    <string name="splash_logo">Splash Screen Logo</string>
     <string name="default_app_bar_title">Tasks</string>
     <string name="more_options">More Options</string>
     <string name="search_query_placeholder">Search</string>

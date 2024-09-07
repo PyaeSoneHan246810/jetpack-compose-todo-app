@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
+import com.example.to_doapp.navigation.destinations.splashComposable
 import com.example.to_doapp.navigation.destinations.taskComposable
 import com.example.to_doapp.navigation.destinations.tasksListComposable
 import com.example.to_doapp.ui.viewmodel.SharedViewModel
@@ -14,19 +15,22 @@ fun Navigation(
     navController: NavHostController,
     sharedViewModel: SharedViewModel,
 ) {
-    val screens = remember(navController) {
-        Screens(navController = navController)
+    val navigationAction = remember(navController) {
+        NavigationAction(navController = navController)
     }
     NavHost(
         navController = navController,
-        startDestination = Constants.TASKS_LIST_ROUTE
+        startDestination = Constants.SPLASH_ROUTE
     ) {
+        splashComposable(
+            navigateToTaskListScreen = navigationAction.splashScreenToTasksListScreen
+        )
         tasksListComposable(
-            navigateToTaskScreen = screens.task,
+            navigateToTaskScreen = navigationAction.tasksListScreenToTaskScreen,
             sharedViewModel = sharedViewModel,
         )
         taskComposable(
-            navigateToTaskListScreen = screens.tasksList,
+            navigateToTaskListScreen = navigationAction.taskScreenToTasksListScreen,
             sharedViewModel = sharedViewModel
         )
     }

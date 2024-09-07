@@ -2,6 +2,8 @@ package com.example.to_doapp.navigation.destinations
 
 import android.content.Context
 import android.widget.Toast
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -27,7 +29,23 @@ fun NavGraphBuilder.taskComposable(
             ) {
                 type = NavType.IntType
             }
-        )
+        ),
+        enterTransition = {
+            slideIntoContainer(
+                towards = AnimatedContentTransitionScope.SlideDirection.Left,
+                animationSpec = tween(
+                    durationMillis = 400,
+                )
+            )
+        },
+        exitTransition = {
+            slideOutOfContainer(
+                towards = AnimatedContentTransitionScope.SlideDirection.Right,
+                animationSpec = tween(
+                    durationMillis = 400,
+                )
+            )
+        }
     ) { navBackStackEntry ->
         val taskId = navBackStackEntry.arguments!!.getInt(Constants.TASK_ROUTE_ARG1)
         LaunchedEffect(key1 = taskId) {

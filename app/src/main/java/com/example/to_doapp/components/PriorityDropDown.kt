@@ -100,7 +100,7 @@ fun PriorityDropDown(
         DropdownMenu(
             modifier = Modifier
                 .fillMaxWidth(fraction = 0.94f)
-                .background(MaterialTheme.colorScheme.surface),
+                .background(MaterialTheme.colorScheme.surfaceContainer),
             expanded = expanded,
             onDismissRequest = {
                 expanded = false

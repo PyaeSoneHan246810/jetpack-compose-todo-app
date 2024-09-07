@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -110,7 +111,14 @@ fun TasksListScreen(
             )
         },
         snackbarHost = {
-            SnackbarHost(hostState = snackBarHostState)
+            SnackbarHost(hostState = snackBarHostState) { snackBarData ->
+                Snackbar(
+                    snackbarData = snackBarData,
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    contentColor = MaterialTheme.colorScheme.onSurface
+                )
+            }
+
         }
     ) { paddingValues ->
         if (sortStateResponse is Response.Success) {

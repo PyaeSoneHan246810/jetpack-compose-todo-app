@@ -119,7 +119,7 @@ fun DefaultAppBar(
                 )
                 DropdownMenu(
                     modifier = Modifier
-                        .background(color = MaterialTheme.colorScheme.surface),
+                        .background(color = MaterialTheme.colorScheme.surfaceContainer),
                     expanded = isSortMenuExpanded,
                     onDismissRequest = {
                         isSortMenuExpanded = false
@@ -166,7 +166,7 @@ fun DefaultAppBar(
                 )
                 DropdownMenu(
                     modifier = Modifier
-                        .background(color = MaterialTheme.colorScheme.surface),
+                        .background(color = MaterialTheme.colorScheme.surfaceContainer),
                     expanded = isMoreOptionsMenuExpanded,
                     onDismissRequest = {
                         isMoreOptionsMenuExpanded = false
