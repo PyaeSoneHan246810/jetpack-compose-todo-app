@@ -2,9 +2,12 @@ package com.example.to_doapp
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.to_doapp.navigation.Navigation
@@ -17,7 +20,6 @@ class MainActivity: ComponentActivity() {
     private lateinit var navController: NavHostController
     private val sharedViewModel: SharedViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContent {
             ToDoAppTheme {
