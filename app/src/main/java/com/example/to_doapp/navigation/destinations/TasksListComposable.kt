@@ -86,6 +86,11 @@ fun NavGraphBuilder.tasksListComposable(
                 actionState = action
             },
             navigateToTaskScreen = navigateToTaskScreen,
+            onSwipeToDelete = { action, task ->
+                sharedViewModel.action.value = action
+                actionState = action
+                sharedViewModel.updateTaskProperties(task)
+            },
             resetDatabaseAction = {
                 sharedViewModel.resetDatabaseAction()
             }

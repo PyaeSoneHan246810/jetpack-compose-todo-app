@@ -48,6 +48,7 @@ fun TasksListScreen(
     onDeleteAllActionClick: (action: Action) -> Unit,
     onUndoClick: (action: Action) -> Unit,
     navigateToTaskScreen: (taskId: Int) -> Unit,
+    onSwipeToDelete: (action: Action, task: ToDoTask) -> Unit,
     resetDatabaseAction: () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -128,7 +129,8 @@ fun TasksListScreen(
                             tasks = searchTasksResponse.data,
                             onTaskItemClick = { taskId ->
                                 navigateToTaskScreen(taskId)
-                            }
+                            },
+                            onSwipeToDelete = onSwipeToDelete
                         )
                     }
                 }
@@ -145,7 +147,8 @@ fun TasksListScreen(
                             tasks = allTasksResponse.data,
                             onTaskItemClick = { taskId ->
                                 navigateToTaskScreen(taskId)
-                            }
+                            },
+                            onSwipeToDelete = onSwipeToDelete
                         )
                     }
                 }
@@ -156,7 +159,8 @@ fun TasksListScreen(
                         tasks = lowPriorityTasks,
                         onTaskItemClick = { taskId ->
                             navigateToTaskScreen(taskId)
-                        }
+                        },
+                        onSwipeToDelete = onSwipeToDelete
                     )
                 }
                 sortStateResponse.data == Priority.HIGH -> {
@@ -166,7 +170,8 @@ fun TasksListScreen(
                         tasks = highPriorityTasks,
                         onTaskItemClick = { taskId ->
                             navigateToTaskScreen(taskId)
-                        }
+                        },
+                        onSwipeToDelete = onSwipeToDelete
                     )
                 }
             }
@@ -179,6 +184,7 @@ fun TasksListContent(
     modifier: Modifier = Modifier,
     tasks: List<ToDoTask>,
     onTaskItemClick: (taskId: Int) -> Unit,
+    onSwipeToDelete: (action: Action, task: ToDoTask) -> Unit
 ) {
     if (tasks.isEmpty()) {
         EmptyTasks(
@@ -188,7 +194,8 @@ fun TasksListContent(
         TasksList(
             modifier = modifier,
             tasks = tasks,
-            onTaskItemClick = onTaskItemClick
+            onTaskItemClick = onTaskItemClick,
+            onSwipeToDelete = onSwipeToDelete
         )
     }
 }
@@ -283,6 +290,7 @@ private fun TasksListScreenPrev() {
             onDeleteAllActionClick = {},
             onUndoClick = {},
             navigateToTaskScreen = {},
+            onSwipeToDelete = { action, taskId ->  },
             resetDatabaseAction = {}
         )
     }
@@ -316,6 +324,7 @@ private fun EmptyTasksListScreenPrev() {
             onDeleteAllActionClick = {},
             onUndoClick = {},
             navigateToTaskScreen = {},
+            onSwipeToDelete = { _, _ ->  },
             resetDatabaseAction = {}
         )
     }
@@ -345,6 +354,7 @@ private fun LoadingTasksListScreenPrev() {
             onDeleteAllActionClick = {},
             onUndoClick = {},
             navigateToTaskScreen = {},
+            onSwipeToDelete = { _, _ ->  },
             resetDatabaseAction = {}
         )
     }
