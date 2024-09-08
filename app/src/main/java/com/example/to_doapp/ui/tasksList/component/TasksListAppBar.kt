@@ -125,33 +125,17 @@ fun DefaultAppBar(
                         isSortMenuExpanded = false
                     }
                 ) {
-                    DropdownMenuItem(
-                        text = {
-                            PriorityItem(priority = Priority.LOW)
-                        },
-                        onClick = {
-                            isSortMenuExpanded = false
-                            onSortActionClick(Priority.LOW)
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = {
-                            PriorityItem(priority = Priority.HIGH)
-                        },
-                        onClick = {
-                            isSortMenuExpanded = false
-                            onSortActionClick(Priority.HIGH)
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = {
-                            PriorityItem(priority = Priority.NONE)
-                        },
-                        onClick = {
-                            isSortMenuExpanded = false
-                            onSortActionClick(Priority.NONE)
-                        }
-                    )
+                    Priority.entries.slice(setOf(1, 3, 0)).forEach { priority ->
+                        DropdownMenuItem(
+                            text = {
+                                PriorityItem(priority = priority)
+                            },
+                            onClick = {
+                                isSortMenuExpanded = false
+                                onSortActionClick(priority)
+                            }
+                        )
+                    }
                 }
             }
             //more icon button

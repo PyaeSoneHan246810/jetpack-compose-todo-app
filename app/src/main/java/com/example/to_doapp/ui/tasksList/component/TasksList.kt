@@ -29,7 +29,6 @@ import com.example.to_doapp.data.model.Priority
 import com.example.to_doapp.data.model.ToDoTask
 import com.example.to_doapp.ui.theme.MEDIUM_PADDING
 import com.example.to_doapp.ui.theme.ToDoAppTheme
-import com.example.to_doapp.util.Action
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -39,7 +38,7 @@ fun TasksList(
     modifier: Modifier = Modifier,
     tasks: List<ToDoTask>,
     onTaskItemClick: (taskId: Int) -> Unit,
-    onSwipeToDelete: (action: Action, task: ToDoTask) -> Unit
+    onSwipeToDelete: (task: ToDoTask) -> Unit
 ) {
     LazyColumn(
         modifier = modifier
@@ -67,7 +66,7 @@ fun TasksList(
                             isDismissed = true
                             scope.launch {
                                 delay(300)
-                                onSwipeToDelete(Action.DELETE, task)
+                                onSwipeToDelete(task)
                             }
                             true
                         } else {
@@ -149,7 +148,7 @@ private fun TasksListPrev() {
                 )
             ),
             onTaskItemClick = {},
-            onSwipeToDelete = { action, taskId ->
+            onSwipeToDelete = { _ ->
 
             }
         )

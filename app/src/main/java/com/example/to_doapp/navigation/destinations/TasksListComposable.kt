@@ -4,7 +4,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
@@ -13,6 +13,7 @@ import androidx.navigation.navArgument
 import com.example.to_doapp.ui.tasksList.screen.TasksListScreen
 import com.example.to_doapp.ui.tasksList.state.SearchAppBarState
 import com.example.to_doapp.ui.viewmodel.SharedViewModel
+import com.example.to_doapp.util.Action
 import com.example.to_doapp.util.Constants
 import com.example.to_doapp.util.toAction
 
@@ -30,12 +31,11 @@ fun NavGraphBuilder.tasksListComposable(
             },
         )
     ) { navBackStackEntry ->
-        var actionState by remember {
-            mutableStateOf(navBackStackEntry.arguments!!.getString(Constants.TASKS_LIST_ROUTE_ARG1).toAction())
+        var actionSaved by rememberSaveable {
+            mutableStateOf(Action.NO_ACTION)
         }
-        LaunchedEffect(key1 = true) {
-            sharedViewModel.readSortState()
-            sharedViewModel.getAllTasks()
+        var actionState by rememberSaveable {
+            mutableStateOf(navBackStackEntry.arguments!!.getString(Constants.TASKS_LIST_ROUTE_ARG1).toAction())
         }
         val allTasksResponse by sharedViewModel.allTasksResponse.collectAsState()
         val searchTasksResponse by sharedViewModel.searchTasksResponse.collectAsState()
@@ -43,7 +43,10 @@ fun NavGraphBuilder.tasksListComposable(
         val lowPriorityTasks by sharedViewModel.lowPriorityTasks.collectAsState()
         val highPriorityTasks by sharedViewModel.highPriorityTasks.collectAsState()
         LaunchedEffect(key1 = actionState) {
-            sharedViewModel.action.value = actionState
+            if (actionState != actionSaved) {
+                actionSaved = actionState
+                sharedViewModel.action.value = actionState
+            }
         }
         val databaseAction by sharedViewModel.action
         LaunchedEffect(key1 = databaseAction) {

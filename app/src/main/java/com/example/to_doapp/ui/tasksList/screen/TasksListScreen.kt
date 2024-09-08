@@ -1,7 +1,6 @@
 package com.example.to_doapp.ui.tasksList.screen
 
 import android.content.res.Configuration
-import android.util.Log
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -70,7 +69,7 @@ fun TasksListScreen(
                     coroutineScope = coroutineScope,
                     snackBarHostState = snackBarHostState,
                     message = message,
-                    onDismissed = resetDatabaseAction
+                    onDismissed =  resetDatabaseAction
                 )
             }
             Action.DELETE -> {
@@ -137,7 +136,9 @@ fun TasksListScreen(
                             onTaskItemClick = { taskId ->
                                 navigateToTaskScreen(taskId)
                             },
-                            onSwipeToDelete = onSwipeToDelete
+                            onSwipeToDelete = { task ->
+                                onSwipeToDelete(Action.DELETE, task)
+                            }
                         )
                     }
                 }
@@ -155,7 +156,9 @@ fun TasksListScreen(
                             onTaskItemClick = { taskId ->
                                 navigateToTaskScreen(taskId)
                             },
-                            onSwipeToDelete = onSwipeToDelete
+                            onSwipeToDelete = { task ->
+                                onSwipeToDelete(Action.DELETE, task)
+                            }
                         )
                     }
                 }
@@ -167,7 +170,9 @@ fun TasksListScreen(
                         onTaskItemClick = { taskId ->
                             navigateToTaskScreen(taskId)
                         },
-                        onSwipeToDelete = onSwipeToDelete
+                        onSwipeToDelete = { task ->
+                            onSwipeToDelete(Action.DELETE, task)
+                        }
                     )
                 }
                 sortStateResponse.data == Priority.HIGH -> {
@@ -178,7 +183,9 @@ fun TasksListScreen(
                         onTaskItemClick = { taskId ->
                             navigateToTaskScreen(taskId)
                         },
-                        onSwipeToDelete = onSwipeToDelete
+                        onSwipeToDelete = { task ->
+                            onSwipeToDelete(Action.DELETE, task)
+                        }
                     )
                 }
             }
@@ -191,7 +198,7 @@ fun TasksListContent(
     modifier: Modifier = Modifier,
     tasks: List<ToDoTask>,
     onTaskItemClick: (taskId: Int) -> Unit,
-    onSwipeToDelete: (action: Action, task: ToDoTask) -> Unit
+    onSwipeToDelete: (task: ToDoTask) -> Unit
 ) {
     if (tasks.isEmpty()) {
         EmptyTasks(
@@ -297,7 +304,7 @@ private fun TasksListScreenPrev() {
             onDeleteAllActionClick = {},
             onUndoClick = {},
             navigateToTaskScreen = {},
-            onSwipeToDelete = { action, taskId ->  },
+            onSwipeToDelete = { _, _ ->  },
             resetDatabaseAction = {}
         )
     }

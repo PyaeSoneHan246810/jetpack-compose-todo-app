@@ -22,6 +22,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.to_doapp.R
 import com.example.to_doapp.ui.theme.SPLAsH_LOGO_SIZE
@@ -57,6 +58,19 @@ fun SplashScreen(
         delay(Constants.SPLASH_SCREEN_DELAY)
         navigateToTaskListScreen()
     }
+    SplashScreenContent(
+        modifier = modifier,
+        offsetState = offsetState,
+        alphaState = alphaState
+    )
+}
+
+@Composable
+fun SplashScreenContent(
+    modifier: Modifier = Modifier,
+    offsetState: Dp,
+    alphaState: Float
+) {
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -83,8 +97,9 @@ fun SplashScreen(
 @Composable
 private fun SplashScreenPrev() {
     ToDoAppTheme {
-        SplashScreen(
-            navigateToTaskListScreen = {}
+        SplashScreenContent(
+            offsetState = 0.dp,
+            alphaState = 1f
         )
     }
 }

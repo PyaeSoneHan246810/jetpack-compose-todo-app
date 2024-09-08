@@ -29,11 +29,11 @@ class SharedViewModel @Inject constructor(
     private val dataStoreRepository: DataStoreRepository
 ): ViewModel() {
 
-    //Search states
+    // Search states
     val searchAppBarState: MutableState<SearchAppBarState> = mutableStateOf(SearchAppBarState.CLOSED)
     val searchQueryState: MutableState<String> = mutableStateOf("")
 
-    //Task states
+    // Task states
     val taskId: MutableState<Int> = mutableIntStateOf(0)
     val taskTitle: MutableState<String> = mutableStateOf("")
     val taskDesc: MutableState<String> = mutableStateOf("")
@@ -63,11 +63,11 @@ class SharedViewModel @Inject constructor(
         return taskTitle.value.isNotEmpty() && taskDesc.value.isNotEmpty()
     }
 
-    //Get all tasks
+    // Get all tasks
     private val _allTasksResponse = MutableStateFlow<Response<List<ToDoTask>>>(Response.Idle)
     val allTasksResponse: StateFlow<Response<List<ToDoTask>>> = _allTasksResponse
 
-    fun getAllTasks() {
+    private fun getAllTasks() {
         _allTasksResponse.value = Response.Loading
         try {
             viewModelScope.launch(Dispatchers.IO) {
@@ -80,7 +80,7 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    //Get selected task
+    // Get selected task
     private val _selectedTask = MutableStateFlow<ToDoTask?>(null)
     val selectedTask: StateFlow<ToDoTask?> = _selectedTask
 
@@ -92,7 +92,7 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    //Get search tasks
+    // Get search tasks
     private val _searchTasksResponse = MutableStateFlow<Response<List<ToDoTask>>>(Response.Idle)
     val searchTasksResponse: StateFlow<Response<List<ToDoTask>>> = _searchTasksResponse
 
@@ -110,24 +110,24 @@ class SharedViewModel @Inject constructor(
         searchAppBarState.value = SearchAppBarState.TRIGGERED
     }
 
-    //Get tasks by low priority
+    // Get tasks by low priority
     val lowPriorityTasks: StateFlow<List<ToDoTask>> = toDoRepository.sortByLowPriority().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(),
         emptyList()
     )
 
-    //Get tasks by high priority
+    // Get tasks by high priority
     val highPriorityTasks: StateFlow<List<ToDoTask>> = toDoRepository.sortByHighPriority().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(),
         emptyList()
     )
 
-    //Database action
+    // Database action
     val action: MutableState<Action> = mutableStateOf(Action.NO_ACTION)
 
-    //Handle database action with operation
+    // Handle database action with operation
     fun handleDatabaseAction(action: Action) {
         when(action) {
             Action.ADD -> {
@@ -154,7 +154,7 @@ class SharedViewModel @Inject constructor(
         this.action.value = Action.NO_ACTION
     }
 
-    //Database operations
+    // Database operations
     private fun addTask() {
         viewModelScope.launch(Dispatchers.IO) {
             val newTask = ToDoTask(
@@ -197,7 +197,7 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    //Save and read sort state
+    // Save and read sort state
     private val _sortStateResponse = MutableStateFlow<Response<Priority>>(Response.Idle)
     val sortStateResponse: StateFlow<Response<Priority>> = _sortStateResponse
 
@@ -207,7 +207,7 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    fun readSortState() {
+    private fun readSortState() {
         _sortStateResponse.value = Response.Loading
         try {
             viewModelScope.launch(Dispatchers.IO) {
@@ -218,5 +218,11 @@ class SharedViewModel @Inject constructor(
         } catch (e: Exception) {
             _sortStateResponse.value = Response.Error(error = e)
         }
+    }
+
+    // init
+    init {
+        readSortState()
+        getAllTasks()
     }
 }
