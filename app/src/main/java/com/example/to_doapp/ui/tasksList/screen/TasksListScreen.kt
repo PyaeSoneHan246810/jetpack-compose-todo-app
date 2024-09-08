@@ -64,7 +64,6 @@ fun TasksListScreen(
             Action.DELETE -> "Successfully deleted the task."
             else -> ""
         }
-        Log.d("Action", action.name)
         when(action) {
             Action.ADD, Action.UPDATE, Action.DELETE_ALL -> {
                 displaySnackBar(
