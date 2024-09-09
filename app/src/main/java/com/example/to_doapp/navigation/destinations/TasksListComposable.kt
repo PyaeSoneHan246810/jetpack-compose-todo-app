@@ -43,16 +43,13 @@ fun NavGraphBuilder.tasksListComposable(
         val sortStateResponse by sharedViewModel.sortStateResponse.collectAsState()
         val lowPriorityTasks by sharedViewModel.lowPriorityTasks.collectAsState()
         val highPriorityTasks by sharedViewModel.highPriorityTasks.collectAsState()
-        var actionSaved by rememberSaveable {
+        var userActionSaved by rememberSaveable {
             mutableStateOf(Action.NO_ACTION)
         }
-        var actionState by rememberSaveable {
-            mutableStateOf(navBackStackEntry.arguments!!.getString(Constants.TASKS_LIST_ROUTE_ARG1).toAction())
-        }
-        LaunchedEffect(key1 = actionState) {
-            if (actionState != actionSaved) {
-                actionSaved = actionState
-                sharedViewModel.action.value = actionState
+        val userAction = navBackStackEntry.arguments!!.getString(Constants.TASKS_LIST_ROUTE_ARG1).toAction()
+        LaunchedEffect(key1 = userAction) {
+            if (userAction != userActionSaved) {
+                sharedViewModel.action.value = userAction
             }
         }
         val databaseAction by sharedViewModel.action
@@ -63,44 +60,62 @@ fun NavGraphBuilder.tasksListComposable(
         val snackBarHostState = remember {
             SnackbarHostState()
         }
-        LaunchedEffect(key1 = actionState) {
-            if (actionState != Action.NO_ACTION) {
-                val message = when(actionState) {
+        var showDeleteSuccessSnackBar by remember {
+            mutableStateOf(false)
+        }
+        var showDeleteAllSuccessSnackBar by remember {
+            mutableStateOf(false)
+        }
+        LaunchedEffect(key1 = userAction) {
+            if (userAction != userActionSaved) {
+                userActionSaved = userAction
+                val message: String? = when(userAction) {
                     Action.ADD -> "Task was added successfully."
                     Action.UPDATE -> "Task was updated successfully."
-                    Action.DELETE_ALL -> "All tasks are deleted successfully."
-                    Action.DELETE -> "Successfully deleted the task."
-                    else -> ""
+                    else -> null
                 }
-                when(actionState) {
+                when(userAction) {
                     Action.ADD, Action.UPDATE, Action.DELETE_ALL -> {
                         displaySnackBar(
                             coroutineScope = coroutineScope,
                             snackBarHostState = snackBarHostState,
-                            message = message,
+                            message = message ?: "",
                             onDismissed = {
-                                sharedViewModel.resetDatabaseAction()
-                                actionState = Action.NO_ACTION
-                            }
-                        )
-                    }
-                    Action.DELETE -> {
-                        displayUndoSnackBar(
-                            coroutineScope = coroutineScope,
-                            snackBarHostState = snackBarHostState,
-                            message = message,
-                            onUndoClick = {
-                                sharedViewModel.action.value = Action.UNDO
-                                actionState = Action.UNDO
-                            },
-                            onDismissed = {
-                                sharedViewModel.resetDatabaseAction()
-                                actionState = Action.NO_ACTION
+                                sharedViewModel.action.value = Action.NO_ACTION
                             }
                         )
                     }
                     else -> {}
                 }
+            }
+        }
+        LaunchedEffect(key1 = showDeleteSuccessSnackBar) {
+            if (showDeleteSuccessSnackBar) {
+                displayUndoSnackBar(
+                    coroutineScope = coroutineScope,
+                    snackBarHostState = snackBarHostState,
+                    message = "Successfully deleted the task.",
+                    onUndoClick = {
+                        sharedViewModel.action.value = Action.UNDO
+                    },
+                    onDismissed = {
+                        sharedViewModel.action.value = Action.NO_ACTION
+                    }
+                )
+                showDeleteSuccessSnackBar = false
+            }
+        }
+        LaunchedEffect(key1 = showDeleteAllSuccessSnackBar) {
+            if (showDeleteAllSuccessSnackBar) {
+                displaySnackBar(
+                    coroutineScope = coroutineScope,
+                    snackBarHostState = snackBarHostState,
+                    message = "All tasks are deleted successfully.",
+                    onDismissed = {
+                        sharedViewModel.action.value = Action.NO_ACTION
+                    }
+                )
+                showDeleteAllSuccessSnackBar = false
             }
         }
         TasksListScreen(
@@ -133,12 +148,12 @@ fun NavGraphBuilder.tasksListComposable(
             },
             onDeleteAllActionClick = { action ->
                 sharedViewModel.action.value = action
-                actionState = action
+                showDeleteAllSuccessSnackBar = true
             },
             onSwipeToDelete = { action, task ->
                 sharedViewModel.action.value = action
-                actionState = action
                 sharedViewModel.updateTaskProperties(task)
+                showDeleteSuccessSnackBar = true
             },
             navigateToTaskScreen = navigateToTaskScreen,
         )
