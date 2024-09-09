@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
-    id("kotlin-kapt")
+    id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
 }
 
@@ -75,20 +75,16 @@ dependencies {
     //Room
     implementation(libs.room.runtime)
     annotationProcessor(libs.room.compiler)
-    kapt(libs.room.compiler)
+    ksp(libs.room.compiler)
     implementation(libs.room.ktx)
 
     //Hilt
     implementation(libs.hilt.android)
-    kapt(libs.hilt.android.compiler)
+    ksp(libs.hilt.android.compiler)
 
     //Navigation Compose
     implementation(libs.navigation.compose)
 
     //Material Icons Extended
     implementation(libs.material.icons.extended)
-}
-
-kapt {
-    correctErrorTypes = true
 }

@@ -5,14 +5,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.to_doapp.data.model.Priority
@@ -26,8 +21,6 @@ import com.example.to_doapp.ui.tasksList.state.SearchAppBarState
 import com.example.to_doapp.ui.theme.ToDoAppTheme
 import com.example.to_doapp.util.Action
 import com.example.to_doapp.util.Response
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 @Composable
 fun TasksListScreen(
@@ -37,7 +30,7 @@ fun TasksListScreen(
     sortStateResponse: Response<Priority>,
     lowPriorityTasks: List<ToDoTask>,
     highPriorityTasks: List<ToDoTask>,
-    action: Action,
+    snackBarHostState: SnackbarHostState,
     searchAppBarState: SearchAppBarState,
     searchQuery: String,
     onSearchActionClick: () -> Unit,
@@ -46,46 +39,9 @@ fun TasksListScreen(
     onSearch: (searchQuery: String) -> Unit,
     onSortActionClick: (Priority) -> Unit,
     onDeleteAllActionClick: (action: Action) -> Unit,
-    onUndoClick: (action: Action) -> Unit,
-    navigateToTaskScreen: (taskId: Int) -> Unit,
     onSwipeToDelete: (action: Action, task: ToDoTask) -> Unit,
-    resetDatabaseAction: () -> Unit
+    navigateToTaskScreen: (taskId: Int) -> Unit,
 ) {
-    val coroutineScope = rememberCoroutineScope()
-    val snackBarHostState = remember {
-        SnackbarHostState()
-    }
-    LaunchedEffect(key1 = action) {
-        val message = when(action) {
-            Action.ADD -> "Task was added successfully."
-            Action.UPDATE -> "Task was updated successfully."
-            Action.DELETE_ALL -> "All tasks are deleted successfully."
-            Action.DELETE -> "Successfully deleted the task."
-            else -> ""
-        }
-        when(action) {
-            Action.ADD, Action.UPDATE, Action.DELETE_ALL -> {
-                displaySnackBar(
-                    coroutineScope = coroutineScope,
-                    snackBarHostState = snackBarHostState,
-                    message = message,
-                    onDismissed =  resetDatabaseAction
-                )
-            }
-            Action.DELETE -> {
-                displayUndoSnackBar(
-                    coroutineScope = coroutineScope,
-                    snackBarHostState = snackBarHostState,
-                    message = message,
-                    onUndoClick = {
-                        onUndoClick(Action.UNDO)
-                    },
-                    onDismissed = resetDatabaseAction
-                )
-            }
-            else -> {}
-        }
-    }
     Scaffold(
         modifier = modifier,
         containerColor = MaterialTheme.colorScheme.background,
@@ -137,7 +93,7 @@ fun TasksListScreen(
                                 navigateToTaskScreen(taskId)
                             },
                             onSwipeToDelete = { task ->
-                                onSwipeToDelete(Action.DELETE, task)
+                                performOnSwipeToDeleteAction(onSwipeToDelete, task, snackBarHostState)
                             }
                         )
                     }
@@ -157,7 +113,7 @@ fun TasksListScreen(
                                 navigateToTaskScreen(taskId)
                             },
                             onSwipeToDelete = { task ->
-                                onSwipeToDelete(Action.DELETE, task)
+                                performOnSwipeToDeleteAction(onSwipeToDelete, task, snackBarHostState)
                             }
                         )
                     }
@@ -171,7 +127,7 @@ fun TasksListScreen(
                             navigateToTaskScreen(taskId)
                         },
                         onSwipeToDelete = { task ->
-                            onSwipeToDelete(Action.DELETE, task)
+                            performOnSwipeToDeleteAction(onSwipeToDelete, task, snackBarHostState)
                         }
                     )
                 }
@@ -184,13 +140,18 @@ fun TasksListScreen(
                             navigateToTaskScreen(taskId)
                         },
                         onSwipeToDelete = { task ->
-                            onSwipeToDelete(Action.DELETE, task)
+                            performOnSwipeToDeleteAction(onSwipeToDelete, task, snackBarHostState)
                         }
                     )
                 }
             }
         }
     }
+}
+
+private fun performOnSwipeToDeleteAction(onSwipeToDelete: (action: Action, task: ToDoTask) -> Unit, task: ToDoTask, snackBarHostState: SnackbarHostState) {
+    onSwipeToDelete(Action.DELETE, task)
+    snackBarHostState.currentSnackbarData?.dismiss()
 }
 
 @Composable
@@ -214,41 +175,7 @@ fun TasksListContent(
     }
 }
 
-fun displaySnackBar(coroutineScope: CoroutineScope, snackBarHostState: SnackbarHostState, message: String, onDismissed: () -> Unit) {
-    coroutineScope.launch {
-        val result = snackBarHostState.showSnackbar(
-            message = message,
-            actionLabel = "Ok",
-            duration = SnackbarDuration.Short,
-        )
-        when(result) {
-            SnackbarResult.ActionPerformed -> {
 
-            }
-            SnackbarResult.Dismissed -> {
-                onDismissed()
-            }
-        }
-    }
-}
-
-fun displayUndoSnackBar(coroutineScope: CoroutineScope, snackBarHostState: SnackbarHostState, message: String, onUndoClick: () -> Unit, onDismissed: () -> Unit) {
-    coroutineScope.launch {
-        val result = snackBarHostState.showSnackbar(
-            message = message,
-            actionLabel = "Undo",
-            duration = SnackbarDuration.Long
-        )
-        when(result) {
-            SnackbarResult.ActionPerformed -> {
-                onUndoClick()
-            }
-            SnackbarResult.Dismissed -> {
-                onDismissed()
-            }
-        }
-    }
-}
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_NO, name = "Light Mode", showBackground = true)
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, name = "Dark Mode", showBackground = true)
@@ -293,7 +220,7 @@ private fun TasksListScreenPrev() {
             ),
             lowPriorityTasks = listOf(),
             highPriorityTasks = listOf(),
-            action = Action.NO_ACTION,
+            snackBarHostState = SnackbarHostState(),
             searchAppBarState = SearchAppBarState.CLOSED,
             searchQuery = "",
             onSearchActionClick = {},
@@ -302,10 +229,8 @@ private fun TasksListScreenPrev() {
             onSearch = {},
             onSortActionClick = {},
             onDeleteAllActionClick = {},
-            onUndoClick = {},
-            navigateToTaskScreen = {},
             onSwipeToDelete = { _, _ ->  },
-            resetDatabaseAction = {}
+            navigateToTaskScreen = {},
         )
     }
 }
@@ -327,7 +252,7 @@ private fun EmptyTasksListScreenPrev() {
             ),
             lowPriorityTasks = listOf(),
             highPriorityTasks = listOf(),
-            action = Action.NO_ACTION,
+            snackBarHostState = SnackbarHostState(),
             searchAppBarState = SearchAppBarState.CLOSED,
             searchQuery = "",
             onSearchActionClick = {},
@@ -336,10 +261,8 @@ private fun EmptyTasksListScreenPrev() {
             onSearch = {},
             onSortActionClick = {},
             onDeleteAllActionClick = {},
-            onUndoClick = {},
-            navigateToTaskScreen = {},
             onSwipeToDelete = { _, _ ->  },
-            resetDatabaseAction = {}
+            navigateToTaskScreen = {},
         )
     }
 }
@@ -352,12 +275,12 @@ private fun LoadingTasksListScreenPrev() {
         TasksListScreen(
             allTasksResponse = Response.Loading,
             searchTasksResponse = Response.Loading,
-            action = Action.NO_ACTION,
             sortStateResponse = Response.Success(
                 data = Priority.NONE
             ),
             lowPriorityTasks = listOf(),
             highPriorityTasks = listOf(),
+            snackBarHostState = SnackbarHostState(),
             searchAppBarState = SearchAppBarState.CLOSED,
             searchQuery = "",
             onSearchActionClick = {},
@@ -366,10 +289,8 @@ private fun LoadingTasksListScreenPrev() {
             onSearch = {},
             onSortActionClick = {},
             onDeleteAllActionClick = {},
-            onUndoClick = {},
-            navigateToTaskScreen = {},
             onSwipeToDelete = { _, _ ->  },
-            resetDatabaseAction = {}
+            navigateToTaskScreen = {},
         )
     }
 }
